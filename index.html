@@ -1,890 +1,914 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini Racers 3D</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Let's Take Note</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
+      colors: {
+        accent: '#ff005e',
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; }
 
-        /* MENU - VISIBLE BY DEFAULT */
-        #menu {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-            z-index: 1000;
-            width: 90%;
-            max-width: 500px;
-        }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #525252; border-radius: 3px; }
+  .dark ::-webkit-scrollbar-thumb { background: #525252; }
+  ::-webkit-scrollbar-thumb:hover { background: #737373; }
 
-        #menu h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 3px 3px 6px rgba(0,0,0,0.5);
-            animation: bounce 2s infinite;
-        }
+  /* Noise overlay */
+  .noise-overlay {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0.03; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 
-        #menu h2 {
-            font-size: 1.3em;
-            margin-bottom: 40px;
-            opacity: 0.9;
-        }
+  /* Swirl backgrounds */
+  .swirl-1 {
+    background: conic-gradient(from 0deg, #ff005e, #7c3aed, #3b82f6, #ff005e);
+    animation: swirlRotate 20s ease-in-out infinite;
+  }
+  .swirl-2 {
+    background: conic-gradient(from 90deg, #10b981, #06b6d4, #8b5cf6, #10b981);
+    animation: swirlRotate 25s ease-in-out infinite reverse;
+  }
+  .swirl-3 {
+    background: conic-gradient(from 180deg, #f59e0b, #ef4444, #ec4899, #f59e0b);
+    animation: swirlRotate 22s ease-in-out infinite;
+  }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
+  @keyframes swirlRotate {
+    0% { transform: rotate(0deg) scale(1); }
+    50% { transform: rotate(180deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+  }
+  @keyframes swirlFloat {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-30px) translateX(20px); }
+    50% { transform: translateY(-10px) translateX(-20px); }
+    75% { transform: translateY(20px) translateX(10px); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes toastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(100%); }
+  }
+  @keyframes pulse-ring {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  @keyframes characterMove {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-8px) rotate(2deg); }
+    75% { transform: translateY(4px) rotate(-1deg); }
+  }
 
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 18px 30px;
-            margin: 15px 0;
-            font-size: 1.3em;
-            font-weight: bold;
-            color: white;
-            background: linear-gradient(145deg, #ff6b6b, #ee5a24);
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 8px 20px rgba(238, 90, 36, 0.4);
-            text-transform: uppercase;
-        }
+  .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+  .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  .animate-scale-in { animation: scaleIn 0.3s ease-out forwards; }
+  .animate-slide-down { animation: slideDown 0.3s ease-out forwards; }
 
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(238, 90, 36, 0.6);
-        }
+  .note-card {
+    animation: fadeInUp 0.4s ease-out forwards;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .note-card:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
 
-        .btn.green {
-            background: linear-gradient(145deg, #4ecdc4, #44a08d);
-            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
-        }
+  .glass-card {
+    backdrop-filter: blur(12px) saturate(1.5);
+  }
+  .dark .glass-card {
+    background: rgba(10, 10, 10, 0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .light .glass-card, html:not(.dark) .glass-card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0,0,0,0.08);
+  }
 
-        /* CHARACTER SELECT */
-        #charSelect {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-            z-index: 1000;
-            width: 95%;
-            max-width: 600px;
-            display: none;
-        }
+  /* Corner accents */
+  .corner-accent { position: relative; }
+  .corner-accent::before, .corner-accent::after {
+    content: ''; position: absolute; width: 20px; height: 20px;
+  }
+  .corner-accent::before {
+    top: -1px; left: -1px;
+    border-top: 1px solid #ff005e; border-left: 1px solid #ff005e;
+  }
+  .corner-accent::after {
+    bottom: -1px; right: -1px;
+    border-bottom: 1px solid #ff005e; border-right: 1px solid #ff005e;
+  }
 
-        #charSelect h2 { font-size: 2em; margin-bottom: 25px; }
+  /* Text gradient */
+  .text-gradient {
+    background: linear-gradient(to bottom right, #ffffff, #737373);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  html:not(.dark) .text-gradient {
+    background: linear-gradient(to bottom right, #171717, #737373);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 
-        .charGrid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+  /* Modal overlay */
+  .modal-overlay {
+    backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease;
+  }
 
-        .charCard {
-            background: rgba(255,255,255,0.15);
-            border-radius: 20px;
-            padding: 20px 10px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.3s;
-        }
+  /* Toast container */
+  .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast { animation: toastIn 0.3s ease-out forwards; }
+  .toast.removing { animation: toastOut 0.3s ease-in forwards; }
 
-        .charCard:hover, .charCard.sel { 
-            transform: translateY(-5px);
-            border-color: #ffd700;
-            background: rgba(255,255,255,0.25);
-        }
+  /* Category dot */
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-        .charIcon { font-size: 3em; margin-bottom: 10px; }
-        .charName { font-weight: bold; }
-        .charSpeed { font-size: 0.85em; opacity: 0.8; margin-top: 5px; }
+  /* Note color strips */
+  .note-strip { width: 4px; border-radius: 4px; position: absolute; left: 0; top: 12px; bottom: 12px; }
 
-        /* GAME CANVAS */
-        #gameCanvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            display: none;
-            z-index: 1;
-        }
+  /* Title shimmer */
+  .shimmer-text {
+    background: linear-gradient(90deg, #ff005e, #7c3aed, #3b82f6, #ff005e);
+    background-size: 200% auto;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+  }
 
-        /* HUD */
-        #hud {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            display: none;
-            justify-content: space-between;
-            z-index: 100;
-            pointer-events: none;
-        }
+  /* Empty state */
+  .empty-illustration { animation: float 6s ease-in-out infinite; }
 
-        .hudBox {
-            background: rgba(0,0,0,0.7);
-            padding: 10px 20px;
-            border-radius: 25px;
-            color: white;
-            font-size: 1.1em;
-            font-weight: bold;
-            display: inline-block;
-        }
+  /* Tab active */
+  .tab-active { color: #ff005e; border-color: #ff005e; }
+  .tab-inactive { color: #737373; border-color: transparent; }
 
-        .hudBox span { color: #ffd700; }
+  /* Textarea auto */
+  textarea { resize: none; }
 
-        /* CONTROLS */
-        #controls {
-            position: fixed;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            display: none;
-            justify-content: center;
-            gap: 30px;
-            z-index: 100;
-            padding: 0 20px;
-        }
+  /* Pin glow */
+  .pin-active { color: #ff005e; filter: drop-shadow(0 0 6px rgba(255,0,94,0.5)); }
 
-        .ctrlBtn {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: none;
-            font-size: 2em;
-            cursor: pointer;
-            user-select: none;
-            touch-action: manipulation;
-        }
+  /* Editor toolbar btn */
+  .editor-btn {
+    transition: all 0.15s ease;
+  }
+  .editor-btn:hover {
+    background: rgba(255,0,94,0.1);
+    color: #ff005e;
+  }
 
-        .ctrlBtn:active { transform: scale(0.9); }
-
-        #leftCtrl { background: linear-gradient(145deg, #ff6b6b, #ee5a24); color: white; }
-        #rightCtrl { background: linear-gradient(145deg, #4ecdc4, #44a08d); color: white; }
-        #jumpCtrl { 
-            background: linear-gradient(145deg, #a55eea, #8854d0); 
-            color: white; 
-            width: 100px; 
-            height: 100px; 
-            font-size: 1.5em; 
-        }
-
-        /* PROGRESS */
-        #progressBar {
-            position: fixed;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            max-width: 400px;
-            display: none;
-            z-index: 100;
-        }
-
-        #progressTrack {
-            width: 100%;
-            height: 20px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.3);
-        }
-
-        #progressFill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
-            transition: width 0.3s;
-        }
-
-        #distText {
-            text-align: center;
-            color: white;
-            margin-top: 8px;
-            font-size: 1em;
-        }
-
-        /* RESULTS */
-        #results {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-            background: rgba(0,0,0,0.9);
-            padding: 40px 30px;
-            border-radius: 30px;
-            z-index: 1000;
-            width: 90%;
-            max-width: 450px;
-            display: none;
-        }
-
-        #results h2 { font-size: 2.5em; color: #ffd700; margin-bottom: 10px; }
-        .stat { font-size: 1.3em; margin: 15px 0; }
-        .stat span { color: #00d2ff; font-weight: bold; }
-        .medal { font-size: 5em; margin: 20px 0; }
-
-        @media (max-width: 600px) {
-            #menu h1 { font-size: 2.2em; }
-            .ctrlBtn { width: 70px; height: 70px; }
-            #jumpCtrl { width: 85px; height: 85px; }
-        }
-    </style>
+  .dark .editor-btn { color: #a3a3a3; }
+  html:not(.dark) .editor-btn { color: #525252; }
+</style>
 </head>
-<body>
+<body class="dark bg-neutral-950 text-white min-h-screen transition-colors duration-300">
 
-<!-- MAIN MENU - ALWAYS VISIBLE FIRST -->
-<div id="menu">
-    <h1>🏆 Mini Racers 3D</h1>
-    <h2>Championship Edition</h2>
-    <button class="btn" onclick="showChars()">🎮 PLAY NOW</button>
-    <button class="btn green" onclick="alert('⬅️➡️ Move | ⬆️ Jump | 🪙 Collect coins')">📖 HOW TO PLAY</button>
+<!-- Noise overlay -->
+<div class="noise-overlay"></div>
+
+<!-- Swirl backgrounds -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+  <div class="swirl-1 absolute w-[500px] h-[500px] rounded-full blur-[80px] opacity-[0.15] top-[-10%] left-[-5%]" style="animation: swirlRotate 20s ease-in-out infinite, swirlFloat 15s ease-in-out infinite;"></div>
+  <div class="swirl-2 absolute w-[400px] h-[400px] rounded-full blur-[80px] opacity-[0.12] top-[40%] right-[-8%]" style="animation: swirlRotate 25s ease-in-out infinite reverse, swirlFloat 18s ease-in-out infinite 2s;"></div>
+  <div class="swirl-3 absolute w-[450px] h-[450px] rounded-full blur-[80px] opacity-[0.1] bottom-[-5%] left-[30%]" style="animation: swirlRotate 22s ease-in-out infinite, swirlFloat 20s ease-in-out infinite 4s;"></div>
 </div>
 
-<!-- CHARACTER SELECT -->
-<div id="charSelect">
-    <h2>Choose Your Racer</h2>
-    <div class="charGrid">
-        <div class="charCard sel" onclick="pickChar(0)">
-            <div class="charIcon">🏃</div>
-            <div class="charName">Speedy</div>
-            <div class="charSpeed">⚡ Fast</div>
-        </div>
-        <div class="charCard" onclick="pickChar(1)">
-            <div class="charIcon">🦊</div>
-            <div class="charName">Fox</div>
-            <div class="charSpeed">🎯 Balanced</div>
-        </div>
-        <div class="charCard" onclick="pickChar(2)">
-            <div class="charIcon">🐰</div>
-            <div class="charName">Bunny</div>
-            <div class="charSpeed">🦘 High Jump</div>
-        </div>
-        <div class="charCard" onclick="pickChar(3)">
-            <div class="charIcon">🤖</div>
-            <div class="charName">Robot</div>
-            <div class="charSpeed">🛡️ Shield</div>
-        </div>
-        <div class="charCard" onclick="pickChar(4)">
-            <div class="charIcon">👽</div>
-            <div class="charName">Alien</div>
-            <div class="charSpeed">👾 Mystery</div>
-        </div>
-        <div class="charCard" onclick="pickChar(5)">
-            <div class="charIcon">🦸</div>
-            <div class="charName">Hero</div>
-            <div class="charSpeed">💫 Super</div>
-        </div>
+<!-- Toast container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ========== NAV ========== -->
+<nav class="fixed top-0 left-0 right-0 h-16 z-50 glass-card border-b border-white/10 dark:border-white/10 border-black/5">
+  <div class="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-2.5 group">
+      <div class="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+        <span class="iconify text-accent" data-icon="lucide:pen-line" data-width="18"></span>
+      </div>
+      <span class="font-semibold text-lg tracking-tight">Let's Take Note</span>
+    </a>
+    <!-- Right controls -->
+    <div class="flex items-center gap-3">
+      <!-- Search toggle (mobile) -->
+      <button id="mobileSearchBtn" class="md:hidden p-2 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 transition-colors">
+        <span class="iconify" data-icon="lucide:search" data-width="18"></span>
+      </button>
+      <!-- Search bar (desktop) -->
+      <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-neutral-800 dark:border-neutral-800 border-neutral-300 bg-neutral-900/50 dark:bg-neutral-900/50 bg-white/50 focus-within:border-accent/50 transition-colors">
+        <span class="iconify text-neutral-500" data-icon="lucide:search" data-width="16"></span>
+        <input id="searchInput" type="text" placeholder="Search notes..." class="bg-transparent outline-none text-sm w-48 placeholder:text-neutral-500">
+      </div>
+      <!-- Theme toggle -->
+      <button id="themeToggle" class="p-2 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 transition-colors" title="Toggle theme">
+        <span class="iconify dark-icon" data-icon="lucide:moon" data-width="18"></span>
+        <span class="iconify sun-icon hidden" data-icon="lucide:sun" data-width="18"></span>
+      </button>
+      <!-- New Note btn -->
+      <button id="newNoteBtn" class="flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20">
+        <span class="iconify" data-icon="lucide:plus" data-width="16"></span>
+        <span class="hidden sm:inline">New Note</span>
+      </button>
     </div>
-    <button class="btn" onclick="startGame()">🚀 START RACE!</button>
-    <button class="btn green" onclick="backToMenu()">← BACK</button>
+  </div>
+</nav>
+
+<!-- Mobile search bar -->
+<div id="mobileSearch" class="fixed top-16 left-0 right-0 z-40 hidden glass-card border-b border-white/10 dark:border-white/10 border-black/5 p-3">
+  <div class="flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-800 dark:border-neutral-800 border-neutral-300 bg-neutral-900/50 dark:bg-neutral-900/50 bg-white/50 focus-within:border-accent/50 transition-colors">
+    <span class="iconify text-neutral-500" data-icon="lucide:search" data-width="16"></span>
+    <input id="mobileSearchInput" type="text" placeholder="Search notes..." class="bg-transparent outline-none text-sm w-full placeholder:text-neutral-500">
+  </div>
 </div>
 
-<!-- CANVAS FOR 2D/3D RENDERING -->
-<canvas id="gameCanvas"></canvas>
+<!-- ========== MAIN ========== -->
+<main class="relative z-10 pt-24 pb-20 px-4 sm:px-6 max-w-7xl mx-auto">
 
-<!-- HUD -->
-<div id="hud">
-    <div class="hudBox">🪙 <span id="coins">0</span></div>
-    <div class="hudBox">⏱️ <span id="time">0:00</span></div>
-    <div class="hudBox">📍 <span id="dist">0m</span> / 500m</div>
+  <!-- Hero section -->
+  <section class="text-center mb-12 animate-fade-in-up">
+    <h1 class="text-4xl sm:text-5xl md:text-6xl font-medium tracking-tighter leading-[1.1] mb-4">
+      <span class="text-gradient">Capture every</span><br>
+      <span class="shimmer-text">brilliant idea</span>
+    </h1>
+    <p class="text-neutral-400 dark:text-neutral-400 text-neutral-600 text-lg max-w-xl mx-auto">
+      Your thoughts deserve a beautiful home. Create, organize, and find your notes effortlessly.
+    </p>
+  </section>
+
+  <!-- Stats bar -->
+  <div class="flex items-center justify-center gap-6 sm:gap-10 mb-10 animate-fade-in-up" style="animation-delay:0.1s;">
+    <div class="text-center">
+      <div id="statTotal" class="text-2xl font-semibold">0</div>
+      <div class="text-xs text-neutral-500 uppercase tracking-widest">Notes</div>
+    </div>
+    <div class="w-px h-8 bg-neutral-800 dark:bg-neutral-800 bg-neutral-300"></div>
+    <div class="text-center">
+      <div id="statPinned" class="text-2xl font-semibold">0</div>
+      <div class="text-xs text-neutral-500 uppercase tracking-widest">Pinned</div>
+    </div>
+    <div class="w-px h-8 bg-neutral-800 dark:bg-neutral-800 bg-neutral-300"></div>
+    <div class="text-center">
+      <div id="statCategories" class="text-2xl font-semibold">0</div>
+      <div class="text-xs text-neutral-500 uppercase tracking-widest">Categories</div>
+    </div>
+  </div>
+
+  <!-- Filters & View -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 animate-fade-in-up" style="animation-delay:0.15s;">
+    <!-- Category tabs -->
+    <div class="flex items-center gap-1 overflow-x-auto pb-1" id="categoryTabs">
+      <button data-cat="all" class="cat-tab tab-active px-3 py-1.5 text-sm font-medium border-b-2 whitespace-nowrap transition-colors">All</button>
+    </div>
+    <!-- View toggle -->
+    <div class="flex items-center gap-1 p-1 rounded-lg border border-neutral-800 dark:border-neutral-800 border-neutral-300">
+      <button id="viewGrid" class="p-1.5 rounded-md bg-accent/10 text-accent transition-colors" title="Grid view">
+        <span class="iconify" data-icon="lucide:layout-grid" data-width="16"></span>
+      </button>
+      <button id="viewList" class="p-1.5 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 text-neutral-500 transition-colors" title="List view">
+        <span class="iconify" data-icon="lucide:list" data-width="16"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Notes Grid -->
+  <div id="notesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <!-- Notes will be rendered here -->
+  </div>
+
+  <!-- Empty state -->
+  <div id="emptyState" class="hidden flex-col items-center justify-center py-20 text-center">
+    <div class="empty-illustration mb-6">
+      <div class="w-32 h-32 rounded-2xl border-2 border-dashed border-neutral-700 dark:border-neutral-700 border-neutral-300 flex items-center justify-center">
+        <span class="iconify text-neutral-600" data-icon="lucide:notebook-pen" data-width="48"></span>
+      </div>
+    </div>
+    <h3 class="text-xl font-medium mb-2">No notes yet</h3>
+    <p class="text-neutral-500 mb-6 max-w-sm">Start capturing your thoughts. Click the button below to create your first note.</p>
+    <button onclick="openEditor()" class="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-medium hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20">
+      <span class="iconify" data-icon="lucide:plus" data-width="18"></span>
+      Create your first note
+    </button>
+  </div>
+
+  <!-- Search empty -->
+  <div id="searchEmpty" class="hidden flex-col items-center justify-center py-20 text-center">
+    <span class="iconify text-neutral-600 mb-4" data-icon="lucide:search-x" data-width="48"></span>
+    <h3 class="text-xl font-medium mb-2">No results found</h3>
+    <p class="text-neutral-500">Try a different search term or category.</p>
+  </div>
+
+</main>
+
+<!-- ========== NOTE EDITOR MODAL ========== -->
+<div id="editorModal" class="fixed inset-0 z-[100] hidden">
+  <div class="modal-overlay absolute inset-0 bg-black/50 dark:bg-black/50 bg-black/30" onclick="closeEditor()"></div>
+  <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[85vh] flex flex-col rounded-2xl glass-card border border-white/10 dark:border-white/10 border-black/10 shadow-2xl animate-scale-in overflow-hidden">
+    <!-- Editor Header -->
+    <div class="flex items-center justify-between px-5 py-3 border-b border-white/10 dark:border-white/10 border-black/10">
+      <h3 id="editorTitle" class="font-medium text-lg">New Note</h3>
+      <button onclick="closeEditor()" class="p-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 transition-colors">
+        <span class="iconify" data-icon="lucide:x" data-width="18"></span>
+      </button>
+    </div>
+    <!-- Editor Body -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-4">
+      <!-- Title input -->
+      <input id="noteTitle" type="text" placeholder="Note title..." class="w-full bg-transparent text-xl font-medium outline-none placeholder:text-neutral-600">
+      <!-- Category & Color row -->
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Category select -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-neutral-500 uppercase tracking-widest">Category</span>
+          <select id="noteCategory" class="bg-neutral-900/50 dark:bg-neutral-900/50 bg-neutral-100 border border-neutral-800 dark:border-neutral-800 border-neutral-300 rounded-lg px-2 py-1 text-sm outline-none focus:border-accent/50">
+            <option value="General">General</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Ideas">Ideas</option>
+            <option value="Tasks">Tasks</option>
+          </select>
+        </div>
+        <!-- Color picker -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-neutral-500 uppercase tracking-widest">Color</span>
+          <div class="flex gap-1.5" id="colorPicker">
+            <button data-color="#ff005e" class="w-6 h-6 rounded-full bg-[#ff005e] ring-2 ring-transparent hover:ring-white/30 transition-all color-btn" title="Rose"></button>
+            <button data-color="#7c3aed" class="w-6 h-6 rounded-full bg-[#7c3aed] ring-2 ring-transparent hover:ring-white/30 transition-all color-btn" title="Violet"></button>
+            <button data-color="#3b82f6" class="w-6 h-6 rounded-full bg-[#3b82f6] ring-2 ring-transparent hover:ring-white/30 transition-all color-btn" title="Blue"></button>
+            <button data-color="#10b981" class="w-6 h-6 rounded-full bg-[#10b981] ring-2 ring-transparent hover:ring-white/30 transition-all color-btn" title="Emerald"></button>
+            <button data-color="#f59e0b" class="w-6 h-6 rounded-full bg-[#f59e0b] ring-2 ring-transparent hover:ring-white/30 transition-all color-btn" title="Amber"></button>
+            <button data-color="#6366f1" class="w-6 h-6 rounded-full bg-[#6366f1] ring-2 ring-transparent hover:ring-white/30 transition-all color-btn" title="Indigo"></button>
+          </div>
+        </div>
+      </div>
+      <!-- Toolbar -->
+      <div class="flex items-center gap-0.5 p-1 rounded-lg border border-neutral-800 dark:border-neutral-800 border-neutral-300 bg-neutral-900/30 dark:bg-neutral-900/30 bg-neutral-100/30 w-fit">
+        <button class="editor-btn p-1.5 rounded-md" onclick="formatText('bold')" title="Bold"><span class="iconify" data-icon="lucide:bold" data-width="14"></span></button>
+        <button class="editor-btn p-1.5 rounded-md" onclick="formatText('italic')" title="Italic"><span class="iconify" data-icon="lucide:italic" data-width="14"></span></button>
+        <button class="editor-btn p-1.5 rounded-md" onclick="formatText('underline')" title="Underline"><span class="iconify" data-icon="lucide:underline" data-width="14"></span></button>
+        <div class="w-px h-4 bg-neutral-700 dark:bg-neutral-700 bg-neutral-400 mx-1"></div>
+        <button class="editor-btn p-1.5 rounded-md" onclick="formatText('insertUnorderedList')" title="Bullet list"><span class="iconify" data-icon="lucide:list" data-width="14"></span></button>
+        <button class="editor-btn p-1.5 rounded-md" onclick="formatText('insertOrderedList')" title="Numbered list"><span class="iconify" data-icon="lucide:list-ordered" data-width="14"></span></button>
+        <div class="w-px h-4 bg-neutral-700 dark:bg-neutral-700 bg-neutral-400 mx-1"></div>
+        <button class="editor-btn p-1.5 rounded-md" onclick="formatText('strikeThrough')" title="Strikethrough"><span class="iconify" data-icon="lucide:strikethrough" data-width="14"></span></button>
+      </div>
+      <!-- Content area -->
+      <div id="noteContent" contenteditable="true" class="w-full min-h-[200px] p-4 rounded-xl border border-neutral-800 dark:border-neutral-800 border-neutral-300 bg-neutral-900/30 dark:bg-neutral-900/30 bg-neutral-50/30 outline-none focus:border-accent/40 transition-colors text-sm leading-relaxed" data-placeholder="Start writing your note..."></div>
+    </div>
+    <!-- Editor Footer -->
+    <div class="flex items-center justify-between px-5 py-3 border-t border-white/10 dark:border-white/10 border-black/10">
+      <div class="flex items-center gap-2">
+        <button id="pinToggle" onclick="togglePin()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-neutral-400 hover:text-accent transition-colors" title="Pin note">
+          <span class="iconify" data-icon="lucide:pin" data-width="14"></span>
+          <span>Pin</span>
+        </button>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="closeEditor()" class="px-4 py-2 rounded-lg text-sm font-medium text-neutral-400 hover:text-white dark:hover:text-white hover:text-neutral-900 transition-colors">Cancel</button>
+        <button onclick="saveNote()" class="px-5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20">Save</button>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- PROGRESS BAR -->
-<div id="progressBar">
-    <div id="progressTrack"><div id="progressFill"></div></div>
-    <div id="distText">Race to 500 meters!</div>
+<!-- ========== NOTE VIEW MODAL ========== -->
+<div id="viewModal" class="fixed inset-0 z-[100] hidden">
+  <div class="modal-overlay absolute inset-0 bg-black/50 dark:bg-black/50 bg-black/30" onclick="closeView()"></div>
+  <div class="absolute inset-4 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-full sm:max-w-2xl sm:max-h-[85vh] flex flex-col rounded-2xl glass-card border border-white/10 dark:border-white/10 border-black/10 shadow-2xl animate-scale-in overflow-hidden">
+    <!-- View Header -->
+    <div class="flex items-center justify-between px-5 py-3 border-b border-white/10 dark:border-white/10 border-black/10">
+      <div class="flex items-center gap-2">
+        <div id="viewColorDot" class="cat-dot"></div>
+        <span id="viewCategory" class="text-xs text-neutral-500 uppercase tracking-widest"></span>
+      </div>
+      <div class="flex items-center gap-1">
+        <button id="viewPinBtn" class="p-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 transition-colors" title="Pin">
+          <span class="iconify" data-icon="lucide:pin" data-width="16"></span>
+        </button>
+        <button id="viewEditBtn" class="p-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 transition-colors" title="Edit">
+          <span class="iconify" data-icon="lucide:pencil" data-width="16"></span>
+        </button>
+        <button id="viewDeleteBtn" class="p-1.5 rounded-lg hover:bg-red-500/10 text-red-400 transition-colors" title="Delete">
+          <span class="iconify" data-icon="lucide:trash-2" data-width="16"></span>
+        </button>
+        <button onclick="closeView()" class="p-1.5 rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 transition-colors ml-1">
+          <span class="iconify" data-icon="lucide:x" data-width="18"></span>
+        </button>
+      </div>
+    </div>
+    <!-- View Body -->
+    <div class="flex-1 overflow-y-auto p-5">
+      <h2 id="viewTitle" class="text-2xl font-medium mb-2"></h2>
+      <div id="viewDate" class="text-xs text-neutral-500 mb-5"></div>
+      <div id="viewContent" class="prose prose-sm dark:prose-invert max-w-none leading-relaxed"></div>
+    </div>
+  </div>
 </div>
 
-<!-- CONTROLS -->
-<div id="controls">
-    <button class="ctrlBtn" id="leftCtrl">⬅️</button>
-    <button class="ctrlBtn" id="jumpCtrl">⬆️</button>
-    <button class="ctrlBtn" id="rightCtrl">➡️</button>
+<!-- ========== DELETE CONFIRM MODAL ========== -->
+<div id="deleteModal" class="fixed inset-0 z-[110] hidden">
+  <div class="modal-overlay absolute inset-0 bg-black/60" onclick="closeDelete()"></div>
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm rounded-2xl glass-card border border-white/10 dark:border-white/10 border-black/10 shadow-2xl animate-scale-in p-6 text-center">
+    <div class="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+      <span class="iconify text-red-400" data-icon="lucide:trash-2" data-width="24"></span>
+    </div>
+    <h3 class="text-lg font-medium mb-2">Delete this note?</h3>
+    <p class="text-sm text-neutral-500 mb-6">This action cannot be undone.</p>
+    <div class="flex items-center gap-3 justify-center">
+      <button onclick="closeDelete()" class="px-5 py-2 rounded-lg text-sm font-medium text-neutral-400 hover:text-white transition-colors">Cancel</button>
+      <button id="confirmDeleteBtn" class="px-5 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors">Delete</button>
+    </div>
+  </div>
 </div>
 
-<!-- RESULTS -->
-<div id="results">
-    <h2>🎉 Race Complete!</h2>
-    <div class="medal" id="medal">🥇</div>
-    <div class="stat">Time: <span id="finalTime">0:00</span></div>
-    <div class="stat">Coins: <span id="finalCoins">0</span> 🪙</div>
-    <div class="stat">Score: <span id="finalScore">0</span></div>
-    <button class="btn" onclick="restart()" style="margin-top:20px;">🔄 RACE AGAIN</button>
-    <button class="btn green" onclick="backToMenu()">🏠 MENU</button>
-</div>
+<!-- ========== FOOTER ========== -->
+<footer class="relative z-10 border-t border-neutral-800 dark:border-neutral-800 border-neutral-200 py-8 text-center">
+  <p class="text-sm text-neutral-600">Built with <span class="text-accent">♥</span> — Let's Take Note &copy; 2025</p>
+</footer>
 
 <script>
-// ============================================
-// GAME STATE - Initialize BEFORE anything else
-// ============================================
-console.log('=== MINI RACERS 3D LOADING ===');
+// ============ STATE ============
+let notes = JSON.parse(localStorage.getItem('ltn_notes') || '[]');
+let currentFilter = 'all';
+let currentSearch = '';
+let viewMode = 'grid'; // grid | list
+let editingId = null;
+let selectedColor = '#ff005e';
+let isPinned = false;
+let viewingId = null;
+let deletingId = null;
 
-let selectedChar = 0;
-let gameState = 'menu'; // menu, playing, finished
-let isPlaying = false;
+// ============ HELPERS ============
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+function saveToDisk() { localStorage.setItem('ltn_notes', JSON.stringify(notes)); }
 
-// Game variables
-let playerX = 0;
-let playerY = 0;
-let playerVelY = 0;
-let distance = 0;
-let totalDist = 500;
-let coinCount = 0;
-let gameTime = 0;
-let score = 0;
-let speed = 5;
-let baseSpeed = 5;
-let moveDir = 0;
-let isJumping = false;
+function formatDate(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const diff = now - d;
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h ago';
+  if (diff < 604800000) return Math.floor(diff/86400000) + 'd ago';
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+}
 
-// Game objects
-let obstacles = [];
-let coins = [];
-let trees = [];
-
-// Canvas & Context
-let canvas, ctx;
-let animFrameId;
-
-// Character colors
-const charColors = ['#ff6b6b', '#ff9f43', '#ffecd2', '#74b9ff', '#a29bfe', '#fd79a8'];
-
-// ============================================
-// INITIALIZATION - Runs when page loads
-// ============================================
-window.onload = function() {
-    console.log('Page loaded!');
-    
-    try {
-        // Get canvas
-        canvas = document.getElementById('gameCanvas');
-        ctx = canvas.getContext('2d');
-        
-        // Set canvas size
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        
-        // Setup controls
-        setupControls();
-        
-        console.log('✅ Game initialized successfully!');
-        console.log('✅ Canvas ready:', canvas.width + 'x' + canvas.height);
-        
-    } catch(e) {
-        console.error('❌ Init error:', e);
-        alert('Error: ' + e.message);
-    }
+const catColors = {
+  General: '#6366f1',
+  Work: '#3b82f6',
+  Personal: '#10b981',
+  Ideas: '#f59e0b',
+  Tasks: '#ef4444'
 };
 
-function resizeCanvas() {
-    if(canvas) {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+function getCatColor(cat) { return catColors[cat] || '#6366f1'; }
+
+// ============ TOAST ============
+function showToast(msg, type = 'success') {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  const icons = { success: 'lucide:check-circle', error: 'lucide:alert-circle', info: 'lucide:info' };
+  const colors = { success: 'text-emerald-400', error: 'text-red-400', info: 'text-blue-400' };
+  toast.className = `toast flex items-center gap-3 px-4 py-3 rounded-xl glass-card shadow-2xl min-w-[250px]`;
+  toast.innerHTML = `<span class="iconify ${colors[type]}" data-icon="${icons[type]}" data-width="18"></span><span class="text-sm">${msg}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => { toast.classList.add('removing'); setTimeout(() => toast.remove(), 300); }, 3000);
+}
+
+// ============ RENDER ============
+function getFilteredNotes() {
+  let filtered = [...notes];
+  if (currentFilter !== 'all') filtered = filtered.filter(n => n.category === currentFilter);
+  if (currentSearch.trim()) {
+    const q = currentSearch.toLowerCase();
+    filtered = filtered.filter(n => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q));
+  }
+  // Pinned first, then by date
+  filtered.sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    return b.updatedAt - a.updatedAt;
+  });
+  return filtered;
+}
+
+function renderNotes() {
+  const grid = document.getElementById('notesGrid');
+  const empty = document.getElementById('emptyState');
+  const searchEmpty = document.getElementById('searchEmpty');
+  const filtered = getFilteredNotes();
+
+  if (notes.length === 0) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden'); empty.classList.add('flex');
+    searchEmpty.classList.add('hidden'); searchEmpty.classList.remove('flex');
+    return;
+  }
+  empty.classList.add('hidden'); empty.classList.remove('flex');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    searchEmpty.classList.remove('hidden'); searchEmpty.classList.add('flex');
+    return;
+  }
+  searchEmpty.classList.add('hidden'); searchEmpty.classList.remove('flex');
+
+  if (viewMode === 'grid') {
+    grid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+  } else {
+    grid.className = 'flex flex-col gap-4';
+  }
+
+  grid.innerHTML = filtered.map((note, i) => {
+    const stripColor = note.color || '#ff005e';
+    const catColor = getCatColor(note.category);
+    const preview = stripHTML(note.content).substring(0, 120);
+    const isList = viewMode === 'list';
+
+    return `
+      <div class="note-card relative group rounded-xl glass-card p-5 cursor-pointer overflow-hidden hover:shadow-lg dark:hover:shadow-black/30 hover:shadow-neutral-300/30"
+           style="animation-delay:${i * 0.05}s"
+           onclick="openView('${note.id}')">
+        <div class="note-strip" style="background:${stripColor}"></div>
+        <div class="pl-3">
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <h3 class="font-medium text-base leading-snug line-clamp-1 flex-1">${escapeHtml(note.title) || '<span class="text-neutral-500 italic">Untitled</span>'}</h3>
+            <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+              ${note.pinned ? '<span class="iconify pin-active" data-icon="lucide:pin" data-width="14"></span>' : ''}
+              <button onclick="event.stopPropagation();quickEdit('${note.id}')" class="p-1 rounded-md hover:bg-neutral-800 dark:hover:bg-neutral-800 hover:bg-neutral-200 transition-colors" title="Edit">
+                <span class="iconify text-neutral-400" data-icon="lucide:pencil" data-width="13"></span>
+              </button>
+              <button onclick="event.stopPropagation();confirmDelete('${note.id}')" class="p-1 rounded-md hover:bg-red-500/10 transition-colors" title="Delete">
+                <span class="iconify text-neutral-400 hover:text-red-400" data-icon="lucide:trash-2" data-width="13"></span>
+              </button>
+            </div>
+            ${note.pinned && !isList ? '<span class="iconify pin-active shrink-0 group-hover:hidden" data-icon="lucide:pin" data-width="14"></span>' : ''}
+          </div>
+          ${!isList ? `<p class="text-sm text-neutral-400 dark:text-neutral-400 text-neutral-600 line-clamp-3 mb-3">${preview || '<span class="italic">Empty note</span>'}</p>` : 
+            `<p class="text-sm text-neutral-400 dark:text-neutral-400 text-neutral-600 line-clamp-1 mb-1">${preview || '<span class="italic">Empty note</span>'}</p>`}
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1.5">
+              <span class="cat-dot" style="background:${catColor}"></span>
+              <span class="text-xs text-neutral-500">${note.category}</span>
+            </div>
+            <span class="text-xs text-neutral-600">${formatDate(note.updatedAt)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  updateStats();
+}
+
+function stripHTML(html) { const tmp = document.createElement('div'); tmp.innerHTML = html; return tmp.textContent || ''; }
+function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+function updateStats() {
+  document.getElementById('statTotal').textContent = notes.length;
+  document.getElementById('statPinned').textContent = notes.filter(n => n.pinned).length;
+  const cats = new Set(notes.map(n => n.category));
+  document.getElementById('statCategories').textContent = cats.size;
+}
+
+function renderCategoryTabs() {
+  const container = document.getElementById('categoryTabs');
+  const cats = [...new Set(notes.map(n => n.category))];
+  const allTab = `<button data-cat="all" class="cat-tab ${currentFilter === 'all' ? 'tab-active' : 'tab-inactive'} px-3 py-1.5 text-sm font-medium border-b-2 whitespace-nowrap transition-colors" onclick="filterCategory('all')">All</button>`;
+  const catTabs = cats.map(c => `<button data-cat="${c}" class="cat-tab ${currentFilter === c ? 'tab-active' : 'tab-inactive'} px-3 py-1.5 text-sm font-medium border-b-2 whitespace-nowrap transition-colors flex items-center gap-1.5" onclick="filterCategory('${c}')"><span class="cat-dot" style="background:${getCatColor(c)}"></span>${c}</button>`).join('');
+  container.innerHTML = allTab + catTabs;
+}
+
+// ============ FILTERS ============
+function filterCategory(cat) {
+  currentFilter = cat;
+  document.querySelectorAll('.cat-tab').forEach(t => {
+    t.classList.toggle('tab-active', t.dataset.cat === cat);
+    t.classList.toggle('tab-inactive', t.dataset.cat !== cat);
+  });
+  renderNotes();
+}
+
+// ============ EDITOR ============
+function openEditor(id = null) {
+  editingId = id;
+  const modal = document.getElementById('editorModal');
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  if (id) {
+    const note = notes.find(n => n.id === id);
+    if (!note) return;
+    document.getElementById('editorTitle').textContent = 'Edit Note';
+    document.getElementById('noteTitle').value = note.title;
+    document.getElementById('noteCategory').value = note.category;
+    document.getElementById('noteContent').innerHTML = note.content;
+    selectedColor = note.color || '#ff005e';
+    isPinned = note.pinned || false;
+  } else {
+    document.getElementById('editorTitle').textContent = 'New Note';
+    document.getElementById('noteTitle').value = '';
+    document.getElementById('noteCategory').value = 'General';
+    document.getElementById('noteContent').innerHTML = '';
+    selectedColor = '#ff005e';
+    isPinned = false;
+  }
+  updateColorSelection();
+  updatePinButton();
+  setTimeout(() => document.getElementById('noteTitle').focus(), 100);
+}
+
+function closeEditor() {
+  document.getElementById('editorModal').classList.add('hidden');
+  document.body.style.overflow = '';
+  editingId = null;
+}
+
+function saveNote() {
+  const title = document.getElementById('noteTitle').value.trim();
+  const content = document.getElementById('noteContent').innerHTML.trim();
+  const category = document.getElementById('noteCategory').value;
+
+  if (!title && !content) {
+    showToast('Note cannot be empty', 'error');
+    return;
+  }
+
+  const now = Date.now();
+  if (editingId) {
+    const idx = notes.findIndex(n => n.id === editingId);
+    if (idx > -1) {
+      notes[idx] = { ...notes[idx], title, content, category, color: selectedColor, pinned: isPinned, updatedAt: now };
+      showToast('Note updated');
     }
+  } else {
+    notes.unshift({ id: generateId(), title, content, category, color: selectedColor, pinned: isPinned, createdAt: now, updatedAt: now });
+    showToast('Note created');
+  }
+
+  saveToDisk();
+  renderCategoryTabs();
+  renderNotes();
+  closeEditor();
 }
 
-// ============================================
-// UI FUNCTIONS
-// ============================================
-function showChars() {
-    document.getElementById('menu').style.display = 'none';
-    document.getElementById('charSelect').style.display = 'block';
-}
-
-function pickChar(index) {
-    selectedChar = index;
-    document.querySelectorAll('.charCard').forEach((card, i) => {
-        card.classList.toggle('sel', i === index);
-    });
-}
-
-function backToMenu() {
-    // Stop game
-    isPlaying = false;
-    if(animFrameId) cancelAnimationFrame(animFrameId);
-    
-    // Show menu
-    document.getElementById('menu').style.display = 'block';
-    document.getElementById('charSelect').style.display = 'none';
-    document.getElementById('gameCanvas').style.display = 'none';
-    document.getElementById('hud').style.display = 'none';
-    document.getElementById('controls').style.display = 'none';
-    document.getElementById('progressBar').style.display = 'none';
-    document.getElementById('results').style.display = 'none';
-    
-    // Reset
-    resetGame();
-}
-
-function startGame() {
-    console.log('Starting game...');
-    
-    // Hide menus
-    document.getElementById('charSelect').style.display = 'none';
-    document.getElementById('menu').style.display = 'none';
-    
-    // Show game elements
-    document.getElementById('gameCanvas').style.display = 'block';
-    document.getElementById('hud').style.display = 'flex';
-    document.getElementById('controls').style.display = 'flex';
-    document.getElementById('progressBar').style.display = 'block';
-    
-    // Reset and start
-    resetGame();
-    isPlaying = true;
-    gameState = 'playing';
-    
-    // Start game loop
-    gameLoop();
-}
-
-function resetGame() {
-    playerX = 0;
-    playerY = 0;
-    playerVelY = 0;
-    distance = 0;
-    coinCount = 0;
-    gameTime = 0;
-    score = 0;
-    speed = baseSpeed;
-    isJumping = false;
-    moveDir = 0;
-    
-    obstacles = [];
-    coins = [];
-    trees = [];
-    
-    // Generate initial trees
-    for(let i = 0; i < 20; i++) {
-        trees.push({
-            x: (Math.random() > 0.5 ? 1 : -1) * (150 + Math.random() * 200),
-            y: -i * 100 - Math.random() * 50,
-            size: 40 + Math.random() * 30
-        });
+function updateColorSelection() {
+  document.querySelectorAll('.color-btn').forEach(btn => {
+    if (btn.dataset.color === selectedColor) {
+      btn.classList.add('ring-white/60'); btn.classList.remove('ring-transparent');
+    } else {
+      btn.classList.remove('ring-white/60'); btn.classList.add('ring-transparent');
     }
-    
-    updateHUD();
+  });
 }
 
-function restart() {
-    document.getElementById('results').style.display = 'none';
-    startGame();
+function togglePin() {
+  isPinned = !isPinned;
+  updatePinButton();
 }
 
-// ============================================
-// CONTROLS
-// ============================================
-function setupControls() {
-    const leftBtn = document.getElementById('leftCtrl');
-    const rightBtn = document.getElementById('rightCtrl');
-    const jumpBtn = document.getElementById('jumpCtrl');
-    
-    // Left button
-    leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveDir = -1; });
-    leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); if(moveDir === -1) moveDir = 0; });
-    leftBtn.addEventListener('mousedown', () => moveDir = -1);
-    leftBtn.addEventListener('mouseup', () => { if(moveDir === -1) moveDir = 0; });
-    leftBtn.addEventListener('mouseleave', () => { if(moveDir === -1) moveDir = 0; });
-    
-    // Right button
-    rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveDir = 1; });
-    rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); if(moveDir === 1) moveDir = 0; });
-    rightBtn.addEventListener('mousedown', () => moveDir = 1);
-    rightBtn.addEventListener('mouseup', () => { if(moveDir === 1) moveDir = 0; });
-    rightBtn.addEventListener('mouseleave', () => { if(moveDir === 1) moveDir = 0; });
-    
-    // Jump button
-    jumpBtn.addEventListener('touchstart', (e) => { e.preventDefault(); doJump(); });
-    jumpBtn.addEventListener('click', () => doJump());
-    
-    // Keyboard
-    document.addEventListener('keydown', (e) => {
-        if(!isPlaying) return;
-        if(e.key === 'ArrowLeft' || e.key === 'a') moveDir = -1;
-        if(e.key === 'ArrowRight' || e.key === 'd') moveDir = 1;
-        if(e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') doJump();
-    });
-    
-    document.addEventListener('keyup', (e) => {
-        if(e.key === 'ArrowLeft' || e.key === 'a') if(moveDir === -1) moveDir = 0;
-        if(e.key === 'ArrowRight' || e.key === 'd') if(moveDir === 1) moveDir = 0;
-    });
+function updatePinButton() {
+  const btn = document.getElementById('pinToggle');
+  if (isPinned) {
+    btn.classList.add('text-accent');
+    btn.classList.remove('text-neutral-400');
+  } else {
+    btn.classList.remove('text-accent');
+    btn.classList.add('text-neutral-400');
+  }
 }
 
-function doJump() {
-    if(!isJumping && isPlaying) {
-        isJumping = true;
-        playerVelY = -15;
+function formatText(cmd) {
+  document.execCommand(cmd, false, null);
+  document.getElementById('noteContent').focus();
+}
+
+// ============ VIEW ============
+function openView(id) {
+  viewingId = id;
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  document.getElementById('viewTitle').textContent = note.title || 'Untitled';
+  document.getElementById('viewContent').innerHTML = note.content || '<p class="italic text-neutral-500">Empty note</p>';
+  document.getElementById('viewCategory').textContent = note.category;
+  document.getElementById('viewColorDot').style.background = getCatColor(note.category);
+  document.getElementById('viewDate').textContent = `Created ${formatDate(note.createdAt)} · Updated ${formatDate(note.updatedAt)}`;
+  
+  const pinBtn = document.getElementById('viewPinBtn');
+  pinBtn.innerHTML = note.pinned ? '<span class="iconify pin-active" data-icon="lucide:pin-off" data-width="16"></span>' : '<span class="iconify" data-icon="lucide:pin" data-width="16"></span>';
+
+  document.getElementById('viewEditBtn').onclick = () => { closeView(); setTimeout(() => quickEdit(id), 200); };
+  document.getElementById('viewDeleteBtn').onclick = () => { closeView(); setTimeout(() => confirmDelete(id), 200); };
+  pinBtn.onclick = () => { toggleNotePin(id); };
+
+  document.getElementById('viewModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeView() {
+  document.getElementById('viewModal').classList.add('hidden');
+  document.body.style.overflow = '';
+  viewingId = null;
+}
+
+function toggleNotePin(id) {
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  note.pinned = !note.pinned;
+  note.updatedAt = Date.now();
+  saveToDisk();
+  renderNotes();
+  showToast(note.pinned ? 'Note pinned' : 'Note unpinned', 'info');
+  if (viewingId === id) openView(id);
+}
+
+// ============ DELETE ============
+function confirmDelete(id) {
+  deletingId = id;
+  document.getElementById('deleteModal').classList.remove('hidden');
+  document.getElementById('confirmDeleteBtn').onclick = () => deleteNote();
+}
+
+function closeDelete() {
+  document.getElementById('deleteModal').classList.add('hidden');
+  deletingId = null;
+}
+
+function deleteNote() {
+  notes = notes.filter(n => n.id !== deletingId);
+  saveToDisk();
+  renderCategoryTabs();
+  renderNotes();
+  closeDelete();
+  showToast('Note deleted', 'info');
+}
+
+function quickEdit(id) { openEditor(id); }
+
+// ============ THEME ============
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.classList.contains('dark');
+  html.classList.toggle('dark');
+  localStorage.setItem('ltn_theme', isDark ? 'light' : 'dark');
+  
+  // Update body classes
+  if (isDark) {
+    document.body.classList.remove('bg-neutral-950', 'text-white');
+    document.body.classList.add('bg-white', 'text-neutral-900');
+  } else {
+    document.body.classList.remove('bg-white', 'text-neutral-900');
+    document.body.classList.add('bg-neutral-950', 'text-white');
+  }
+
+  // Toggle icons
+  document.querySelector('.dark-icon').classList.toggle('hidden');
+  document.querySelector('.sun-icon').classList.toggle('hidden');
+}
+
+// ============ VIEW MODE ============
+document.getElementById('viewGrid').onclick = () => {
+  viewMode = 'grid';
+  document.getElementById('viewGrid').classList.add('bg-accent/10', 'text-accent');
+  document.getElementById('viewGrid').classList.remove('text-neutral-500');
+  document.getElementById('viewList').classList.remove('bg-accent/10', 'text-accent');
+  document.getElementById('viewList').classList.add('text-neutral-500');
+  renderNotes();
+};
+document.getElementById('viewList').onclick = () => {
+  viewMode = 'list';
+  document.getElementById('viewList').classList.add('bg-accent/10', 'text-accent');
+  document.getElementById('viewList').classList.remove('text-neutral-500');
+  document.getElementById('viewGrid').classList.remove('bg-accent/10', 'text-accent');
+  document.getElementById('viewGrid').classList.add('text-neutral-500');
+  renderNotes();
+};
+
+// ============ SEARCH ============
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  currentSearch = e.target.value;
+  renderNotes();
+});
+document.getElementById('mobileSearchInput').addEventListener('input', (e) => {
+  currentSearch = e.target.value;
+  document.getElementById('searchInput').value = e.target.value;
+  renderNotes();
+});
+
+// ============ COLOR PICKER ============
+document.querySelectorAll('.color-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    selectedColor = btn.dataset.color;
+    updateColorSelection();
+  });
+});
+
+// ============ INIT ============
+function init() {
+  // Theme
+  const saved = localStorage.getItem('ltn_theme');
+  if (saved === 'light') {
+    document.documentElement.classList.remove('dark');
+    document.body.classList.remove('bg-neutral-950', 'text-white');
+    document.body.classList.add('bg-white', 'text-neutral-900');
+    document.querySelector('.dark-icon').classList.add('hidden');
+    document.querySelector('.sun-icon').classList.remove('hidden');
+  }
+
+  // Events
+  document.getElementById('themeToggle').onclick = toggleTheme;
+  document.getElementById('newNoteBtn').onclick = () => openEditor();
+  document.getElementById('mobileSearchBtn').onclick = () => {
+    document.getElementById('mobileSearch').classList.toggle('hidden');
+    document.getElementById('mobileSearchInput').focus();
+  };
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (!document.getElementById('deleteModal').classList.contains('hidden')) closeDelete();
+      else if (!document.getElementById('viewModal').classList.contains('hidden')) closeView();
+      else if (!document.getElementById('editorModal').classList.contains('hidden')) closeEditor();
     }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+      e.preventDefault();
+      openEditor();
+    }
+  });
+
+  // Content placeholder
+  const contentEl = document.getElementById('noteContent');
+  contentEl.addEventListener('focus', function() { if (this.textContent.trim() === '') this.innerHTML = ''; });
+  contentEl.addEventListener('blur', function() { if (this.textContent.trim() === '') this.innerHTML = ''; });
+
+  // Seed demo notes if empty
+  if (notes.length === 0) {
+    const now = Date.now();
+    notes = [
+      { id: generateId(), title: 'Welcome to Let\'s Take Note ✨', content: '<p>This is your new note-taking companion. Here are some things you can do:</p><ul><li><b>Create</b> notes with rich text formatting</li><li><b>Organize</b> with categories and colors</li><li><b>Pin</b> important notes to the top</li><li><b>Search</b> across all your notes instantly</li><li><b>Toggle</b> between dark and light themes</li></ul><p>Press <b>Ctrl+N</b> to create a new note, or <b>Ctrl+K</b> to search. All your notes are saved locally in your browser.</p>', category: 'General', color: '#7c3aed', pinned: true, createdAt: now - 3600000, updatedAt: now - 3600000 },
+      { id: generateId(), title: 'Meeting Notes — Q1 Planning', content: '<p>Key takeaways from today\'s meeting:</p><ol><li>Revenue target: <b>$2M</b> for Q1</li><li>Launch new feature by <b>Feb 15</b></li><li>Hire 3 more engineers</li><li>Review competitive analysis</li></ol><p>Next meeting: <b>Friday 2PM</b></p>', category: 'Work', color: '#3b82f6', pinned: false, createdAt: now - 7200000, updatedAt: now - 7200000 },
+      { id: generateId(), title: 'App Idea: Mood Tracker', content: '<p>A simple app that lets you log your daily mood with a single tap. Features:</p><ul><li>One-tap mood entry</li><li>Weekly/monthly mood charts</li><li>Optional journaling prompts</li><li>Streak tracking</li><li>Export data as CSV</li></ul><p>Could use a minimal, calming UI. Maybe pastel colors for different moods.</p>', category: 'Ideas', color: '#f59e0b', pinned: false, createdAt: now - 86400000, updatedAt: now - 86400000 },
+      { id: generateId(), title: 'Grocery List', content: '<ul><li>Avocados</li><li>Sourdough bread</li><li>Oat milk</li><li>Berries (blueberry, strawberry)</li><li>Chicken breast</li><li>Olive oil</li><li>Garlic</li><li>Spinach</li></ul>', category: 'Tasks', color: '#10b981', pinned: false, createdAt: now - 172800000, updatedAt: now - 172800000 },
+      { id: generateId(), title: 'Book Recommendations', content: '<p>Books to read this month:</p><ol><li><b>Atomic Habits</b> — James Clear</li><li><b>The Design of Everyday Things</b> — Don Norman</li><li><b>Sapiens</b> — Yuval Noah Harari</li><li><b>Dune</b> — Frank Herbert</li></ol>', category: 'Personal', color: '#ef4444', pinned: false, createdAt: now - 259200000, updatedAt: now - 259200000 },
+      { id: generateId(), title: 'Design System Tokens', content: '<p>Color palette reference:</p><p>🔥 Accent: <span style="color:#ff005e">#ff005e</span></p><p>💜 Purple: <span style="color:#7c3aed">#7c3aed</span></p><p>💙 Blue: <span style="color:#3b82f6">#3b82f6</span></p><p>💚 Emerald: <span style="color:#10b981">#10b981</span></p><p>🧡 Amber: <span style="color:#f59e0b">#f59e0b</span></p><p>Spacing unit: 4px. Border radius: 8px / 12px / 16px / 24px.</p>', category: 'Work', color: '#6366f1', pinned: true, createdAt: now - 345600000, updatedAt: now - 345600000 },
+    ];
+    saveToDisk();
+  }
+
+  renderCategoryTabs();
+  renderNotes();
 }
 
-// ============================================
-// GAME LOOP
-// ============================================
-let lastTime = 0;
-
-function gameLoop(timestamp) {
-    if(!isPlaying) return;
-    
-    animFrameId = requestAnimationFrame(gameLoop);
-    
-    const dt = Math.min((timestamp - lastTime) / 1000, 0.1); // Cap delta time
-    lastTime = timestamp;
-    
-    update(dt);
-    render();
-}
-
-function update(dt) {
-    // Update time
-    gameTime += dt;
-    
-    // Update distance
-    distance += speed * dt;
-    
-    // Increase difficulty
-    if(Math.floor(distance) % 100 === 0 && distance > 0) {
-        baseSpeed = Math.min(baseSpeed + 0.2, 12);
-        speed = baseSpeed;
-    }
-    
-    // Player movement
-    if(moveDir !== 0) {
-        playerX += moveDir * 300 * dt;
-        playerX = Math.max(-150, Math.min(150, playerX));
-    }
-    
-    // Jump physics
-    if(isJumping) {
-        playerY += playerVelY * dt;
-        playerVelY += 40 * dt; // Gravity
-        
-        if(playerY >= 0) {
-            playerY = 0;
-            isJumping = false;
-            playerVelY = 0;
-        }
-    }
-    
-    // Spawn obstacles
-    if(obstacles.length < 8 && Math.random() < 0.02) {
-        const lanes = [-150, 0, 150];
-        obstacles.push({
-            x: lanes[Math.floor(Math.random() * 3)],
-            y: -800,
-            type: Math.floor(Math.random() * 3), // 0=barrier, 1=cone, 2=rock
-            hit: false
-        });
-    }
-    
-    // Spawn coins
-    if(coins.length < 12 && Math.random() < 0.04) {
-        const lanes = [-150, 0, 150];
-        coins.push({
-            x: lanes[Math.floor(Math.random() * 3)],
-            y: -800,
-            collected: false,
-            rot: 0
-        });
-    }
-    
-    // Update obstacles
-    for(let i = obstacles.length - 1; i >= 0; i--) {
-        obstacles[i].y += speed * 60 * dt;
-        
-        // Remove if off screen
-        if(obstacles[i].y > canvas.height + 100) {
-            obstacles.splice(i, 1);
-            continue;
-        }
-        
-        // Collision check
-        if(!obstacles[i].hit && checkCollision(obstacles[i])) {
-            obstacles[i].hit = true;
-            speed = baseSpeed * 0.5;
-            setTimeout(() => { if(isPlaying) speed = baseSpeed; }, 800);
-        }
-    }
-    
-    // Update coins
-    for(let i = coins.length - 1; i >= 0; i--) {
-        coins[i].y += speed * 60 * dt;
-        coins[i].rot += 0.05;
-        
-        // Remove if off screen
-        if(coins[i].y > canvas.height + 100) {
-            coins.splice(i, 1);
-            continue;
-        }
-        
-        // Collection check
-        if(!coins[i].collected && checkCoinCollision(coins[i])) {
-            coins[i].collected = true;
-            coinCount++;
-            score += 10;
-            coins.splice(i, 1);
-        }
-    }
-    
-    // Update trees
-    for(let tree of trees) {
-        tree.y += speed * 30 * dt;
-        if(tree.y > canvas.height + 100) {
-            tree.y -= 2000;
-            tree.x = (Math.random() > 0.5 ? 1 : -1) * (150 + Math.random() * 200);
-        }
-    }
-    
-    // Update HUD
-    updateHUD();
-    
-    // Check win condition
-    if(distance >= totalDist) {
-        endGame();
-    }
-}
-
-function checkCollision(obs) {
-    const dx = playerX - obs.x;
-    const dy = playerY - obs.y;
-    return Math.abs(dx) < 40 && Math.abs(dy) < 50 && !isJumping;
-}
-
-function checkCoinCollision(coin) {
-    const dx = playerX - coin.x;
-    const dy = playerY - coin.y;
-    return Math.sqrt(dx*dx + dy*dy) < 50;
-}
-
-function updateHUD() {
-    const mins = Math.floor(gameTime / 60);
-    const secs = Math.floor(gameTime % 60);
-    document.getElementById('time').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    document.getElementById('coins').textContent = coinCount;
-    document.getElementById('dist').textContent = Math.round(distance) + 'm';
-    document.getElementById('progressFill').style.width = (distance / totalDist * 100) + '%';
-}
-
-function endGame() {
-    isPlaying = false;
-    score += Math.max(0, Math.round((60 - gameTime) * 10));
-    
-    let medal = '🥉';
-    if(gameTime < 35) medal = '🥇';
-    else if(gameTime < 45) medal = '🥈';
-    
-    document.getElementById('medal').textContent = medal;
-    
-    const mins = Math.floor(gameTime / 60);
-    const secs = Math.floor(gameTime % 60);
-    document.getElementById('finalTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    document.getElementById('finalCoins').textContent = coinCount;
-    document.getElementById('finalScore').textContent = score;
-    
-    document.getElementById('hud').style.display = 'none';
-    document.getElementById('controls').style.display = 'none';
-    document.getElementById('progressBar').style.display = 'none';
-    document.getElementById('results').style.display = 'block';
-}
-
-// ============================================
-// RENDERING (2D Canvas)
-// ============================================
-function render() {
-    // Clear canvas
-    ctx.fillStyle = '#87ceeb';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Draw ground
-    ctx.fillStyle = '#7cba5f';
-    ctx.fillRect(0, canvas.height * 0.6, canvas.width, canvas.height * 0.4);
-    
-    // Draw track
-    ctx.fillStyle = '#555555';
-    ctx.fillRect(canvas.width/2 - 200, canvas.height * 0.55, 400, canvas.height * 0.45);
-    
-    // Draw lane lines
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 3;
-    ctx.setLineDash([20, 20]);
-    
-    [canvas.width/2 - 100, canvas.width/2, canvas.width/2 + 100].forEach(x => {
-        ctx.beginPath();
-        ctx.moveTo(x, canvas.height * 0.55);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-    });
-    ctx.setLineDash([]);
-    
-    // Draw trees (background)
-    ctx.fillStyle = '#228b22';
-    for(let tree of trees) {
-        drawTree(tree.x + canvas.width/2, tree.y + canvas.height * 0.65, tree.size);
-    }
-    
-    // Draw coins
-    for(let coin of coins) {
-        if(!coin.collected) {
-            drawCoin(coin.x + canvas.width/2, coin.y + canvas.height * 0.65, coin.rot);
-        }
-    }
-    
-    // Draw obstacles
-    for(let obs of obstacles) {
-        drawObstacle(obs.x + canvas.width/2, obs.y + canvas.height * 0.65, obs.type);
-    }
-    
-    // Draw player
-    drawPlayer(canvas.width/2 + playerX, canvas.height * 0.65 + playerY);
-}
-
-function drawTree(x, y, size) {
-    // Trunk
-    ctx.fillStyle = '#8b4513';
-    ctx.fillRect(x - size*0.15, y - size*0.5, size*0.3, size*0.8);
-    
-    // Leaves
-    ctx.fillStyle = '#228b22';
-    ctx.beginPath();
-    ctx.moveTo(x, y - size);
-    ctx.lineTo(x + size*0.7, y - size*0.2);
-    ctx.lineTo(x - size*0.7, y - size*0.2);
-    ctx.closePath();
-    ctx.fill();
-}
-
-function drawCoin(x, y, rot) {
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(rot);
-    
-    // Coin body
-    ctx.fillStyle = '#ffd700';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 25, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Inner circle
-    ctx.fillStyle = '#ffaa00';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, 17, 7, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    ctx.restore();
-}
-
-function drawObstacle(x, y, type) {
-    if(type === 0) { // Barrier
-        ctx.fillStyle = '#ff4444';
-        ctx.fillRect(x - 40, y - 30, 80, 60);
-        ctx.fillStyle = '#ffffff';
-        for(let i = 0; i < 3; i++) {
-            ctx.fillRect(x - 38, y - 25 + i * 20, 76, 8);
-        }
-    } else if(type === 1) { // Cone
-        ctx.fillStyle = '#ff6600';
-        ctx.beginPath();
-        ctx.moveTo(x, y - 35);
-        ctx.lineTo(x + 25, y + 15);
-        ctx.lineTo(x - 25, y + 15);
-        ctx.closePath();
-        ctx.fill();
-        
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(x, y - 5, 15, 0, Math.PI, true);
-        ctx.stroke();
-    } else { // Rock
-        ctx.fillStyle = '#888888';
-        ctx.beginPath();
-        ctx.moveTo(x - 25, y + 15);
-        ctx.lineTo(x - 15, y - 20);
-        ctx.lineTo(x + 15, y - 25);
-        ctx.lineTo(x + 25, y + 10);
-        ctx.closePath();
-        ctx.fill();
-    }
-}
-
-function drawPlayer(x, y) {
-    const color = charColors[selectedChar];
-    
-    // Shadow
-    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.beginPath();
-    ctx.ellipse(x, y + 35, 25, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Legs
-    ctx.fillStyle = '#333333';
-    const legOffset = isPlaying ? Math.sin(Date.now() * 0.01 * speed) * 10 : 0;
-    ctx.fillRect(x - 18, y + 5, 14, 35 + legOffset);
-    ctx.fillRect(x + 4, y + 5, 14, 35 - legOffset);
-    
-    // Body
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.roundRect(x - 22, y - 40, 44, 70, 15);
-    ctx.fill();
-    
-    // Head
-    ctx.fillStyle = '#ffdbac';
-    ctx.beginPath();
-    ctx.arc(x, y - 55, 22, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Eyes
-    ctx.fillStyle = '#000000';
-    ctx.beginPath();
-    ctx.arc(x - 8, y - 58, 4, 0, Math.PI * 2);
-    ctx.arc(x + 8, y - 58, 4, 0, Math.PI * 2);
-    ctx.fill();
-    
-    // Smile
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y - 52, 8, 0.2, Math.PI - 0.2);
-    ctx.stroke();
-    
-    // Arms
-    ctx.fillStyle = color;
-    const armOffset = isPlaying ? Math.sin(Date.now() * 0.01 * speed) * 8 : 0;
-    ctx.save();
-    ctx.translate(x - 28, y - 25);
-    ctx.rotate((armOffset * 0.03) - 0.3);
-    ctx.fillRect(-6, 0, 12, 35);
-    ctx.restore();
-    
-    ctx.save();
-    ctx.translate(x + 28, y - 25);
-    ctx.rotate((-armOffset * 0.03) + 0.3);
-    ctx.fillRect(-6, 0, 12, 35);
-    ctx.restore();
-}
-
-console.log('✅ Script loaded! Waiting for window.onload...');
-
+init();
 </script>
 </body>
 </html>
